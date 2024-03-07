@@ -1,0 +1,173 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+    box-sizing: border-box;
+}
+#task-holder_0{
+    margin-left: 0;
+    background-color: #f6f6f6;
+    border-radius: inherit;
+    padding-bottom: 10%;
+    padding-top: 5%;
+}
+
+.task-app{
+    width: 100%;
+    max-width: 540px;
+    background: #fff;
+    margin: 100px auto 20px;
+    padding: 40px 30px 70px;
+    border-radius: 10px;
+}
+.task-app h1{
+    margin-left: 30px;
+    color: #002765;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.task-text{
+    display: inline-block;
+    position: relative;
+    width: 60%;
+    height: 20px;
+    text-align: left;
+    font-size: medium;
+}
+.strike-through-text::after{
+    content: ' ';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: black;
+    animation: strike-through-text 1s;
+
+}
+
+.complete-checkbox{
+    display: flex;
+    float:left;
+    background-size: cover;
+    content: "";
+    position: relative;
+    min-height: 24px;
+    min-width: 24px;
+    margin-top: auto;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.false{
+    background-image: url("../../images/unchecked.png");
+}
+.true{
+    background-image: url("../../images/checked.png");
+    background-size: contain;
+    background-position: center;
+
+
+}
+.wrapper-checkbox{
+    height: 100%;
+    width: fit-content;
+}
+.task-container{
+    justify-content: space-between;
+    min-width: 80%;
+    align-items: center;
+    border-radius: 10px;
+    padding-left: 2px;
+    padding-top: 2%;
+    padding-bottom: 2%;
+    margin-bottom: 10px;
+    animation: task_complete_set_true  ;
+}
+
+.task-container:after{
+    display: none
+
+}
+.hold-true{
+    margin-bottom: 20px;
+}
+.task-holder{
+    margin-left: 5%;
+}
+input{
+     flex:1;
+     border: none;
+     outline: none;
+     background: transparent;
+     padding: 10px;
+}
+button{
+    min-height: 24px;
+    min-width: 24px;
+    float: right;
+    display: inline;
+    border: none;
+    outline: none;
+    padding: 8px 8px 8px;
+    align-items: center;
+    font-size: 16px;
+    border-radius: 40px;
+    margin-right: 20px;
+    background-image: url("../../images/options_button2.png");
+    background-size: contain ,90% 90%;
+    background-position: center;
+    background-color: inherit;
+    background-repeat: no-repeat;
+    rotate: 90deg;
+    visibility: hidden;
+}
+
+.task-container:hover{
+    background-color: #e0e0e0;
+}
+button:hover{
+    background-color: lightgrey;
+
+}
+#add-task{
+    background: linear-gradient(170deg, coral, #b9c7ff);
+    border-radius: 50px;
+    text-align: center;
+    padding: 10px 10px 10px;
+    width: 30%;
+    margin-top: 1.5%;
+    margin-left: 5%;
+    margin-bottom: 2.5%;
+}
+.add-task-header-text{
+    justify-content: center;
+    text-align: center;
+    display: inline-block;
+    position: relative;
+    color: rgba(140, 255, 255, 0.78);
+    align-items: center;
+}
+
+
+@keyframes task_complete_set_true {
+    10% { .task-container }
+    100% { display: none }
+}
+@keyframes strike-through-text {
+    0% {width: 0;}
+    100% { width: 100%; }
+}
+@keyframes fade{
+        0%{ opacity: 1;height: fit-content;  }
+        100%{opacity: 0;height: 0; }
+}
+
+.fade-out {
+    opacity: 0;
+    height: 0;
+    position: absolute !important;
+    overflow: hidden ;
+    animation: fade 3s;
+}
