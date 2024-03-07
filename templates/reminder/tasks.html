@@ -1,5 +1,6 @@
 {% load static %}
 <link rel="stylesheet" href="{% static "reminder/styles/tasks.css" %}">
+<link rel="stylesheet" href="{% static "css/global.css" %}">
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,17 +8,21 @@
     <meta charset="UTF-8">
     <title>tasks</title>
     <link rel="icon" href="{% static "images/site_logo.png" %}">
-    {% load static  %}
-
     <script src="{% static "reminder/tasks_main.js" %}"></script>
 </head>
 <body>
     <div class = container>
 
         <div class =task-app>
-            <h2>Your tasks</h2>
-            <div id="task_0" class="global-task-holder">
+            <h1>Your tasks</h1>
 
+            <div id="task-holder_0" class="global-task-holder">
+                <div id="add-task">
+                    <span class="add-task-icon"></span>
+                    <span class="add-task-header-text">
+                        <h3> Add task </h3>
+                    </span>
+                </div>
                 <script>
                     display_tasks()
                 </script>
@@ -28,7 +33,7 @@
 
 
         <h2>{{ message }}</h2>
-        </div>
+    </div>
 
 </body>
 </html>

@@ -5,9 +5,11 @@ import json
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
+from django.views.decorators.cache import never_cache
 from .models import Task
 HOLDER_FOR_TASK_ID = 0
 
+@never_cache
 def in_progress(request, name):
     #todo "in progress view"
     print("in progress")
@@ -58,6 +60,8 @@ def tasks_list(request):
     else:
         return JsonResponse("You're not logged")
 
+
+@never_cache  # todo: delite on release
 def tasks(request):
 
     if request.user.is_authenticated:
