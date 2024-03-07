@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core import serializers
 import json
 # Create your views here.
@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from .models import Task
 HOLDER_FOR_TASK_ID = 0
+
+
 
 @never_cache
 def in_progress(request, name):
@@ -68,3 +70,21 @@ def tasks(request):
         return render(request, "reminder/tasks.html")
     else:
         return HttpResponseRedirect(reverse("login:login"))
+
+
+def get_new_task(request, header_id=0):
+    if request.user.is_authenticated:
+        try:
+            hold_to_task = Task.objects.get(id=header_id)
+            if hold_to_task.owner_id != request.user.id:
+                return JsonResponse({"error": "task does not exist"}, status=404)
+        except Task.DoesNotExist:
+            return JsonResponse({"error": "task does not exist"}, status=404)
+
+        new_task = Task.objects.create(holdToTask_id=header_id, owner_id=request.user.id)
+
+        return JsonResponse(new_task, content_type="application/json", safe=False)
+
+    return redirect("login:login")
+
+

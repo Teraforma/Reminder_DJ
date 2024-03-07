@@ -34,6 +34,7 @@
     height: 20px;
     text-align: left;
     font-size: medium;
+    overflow: auto;
 }
 .strike-through-text::after{
     content: ' ';
@@ -95,6 +96,7 @@
 }
 .task-holder{
     margin-left: 5%;
+    min-height: 0;
 }
 input{
      flex:1;
@@ -160,14 +162,26 @@ button:hover{
     100% { width: 100%; }
 }
 @keyframes fade{
-        0%{ opacity: 1;height: fit-content;  }
-        100%{opacity: 0;height: 0; }
+        0%{ opacity: 1; height: 20%; margin-left: 5%;}
+        50% {margin-left: 0;}
+        100%{opacity: 0;height: 0 !important; }
 }
 
 .fade-out {
     opacity: 0;
-    height: 0;
-    position: absolute !important;
-    overflow: hidden ;
+    height: 0 ;
+    overflow: hidden;
     animation: fade 3s;
 }
+
+/*
+
+
+.fade-out *{
+    display: none;
+    height: 0;
+    animation: fade 1s;
+}
+*/
+
+

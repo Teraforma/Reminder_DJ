@@ -12,11 +12,23 @@ const FADE_OUT_CLASSNAME  = " fade-out"
 const TASK_TEXT_ID = "_textfield"
 const TASK_TEXT_CLASSNAME = "task-text"
 const TASK_TEXT_COMPLETE_CLASSNAME = " strike-through-text"
+
 async function getTasks( ){
-    return fetch(JSON_URL)
+     return fetch(JSON_URL)
         .then((response) => {
-            return response.json();//JSON.parse(response)
+            return  response.json();//JSON.parse(response)
         })
+}
+async function getNewTask(hang_to_pk =NULL_HOLD_TO_ID){
+    return fetch(JSON_URL+"new/"+hang_to_pk+"/")
+        .then(response=>{
+            return response.json()
+        })
+
+
+}
+async function post_task_and_subtask_completed( pk, is_checked){
+    //await post_task_is_checked(is_checked, pk)// todo: finish
 }
 
 async function display_tasks(tasks=null){
@@ -192,37 +204,38 @@ async function updateTask(json_task){
 
 async function click_on_task_checkbox(){
     let task_pk =  get_task_pk_from_element_id(this.id)
-    task_and_subtask_completed( task_pk, true)
+    post_task_and_subtask_completed( task_pk, true)
 
     let task_hanger_div =  document.getElementById( TASK_HANGER_ID + task_pk )
+    checked_sub_div_animation(task_hanger_div)
 
-    let tasks_to_hide =  task_hanger_div.getElementsByClassName(TASK_DIV_CLASSNAME)
+    task_hanger_div.setAttribute("class", FADE_OUT_CLASSNAME)
 
-    for (let task_element of tasks_to_hide){
-        hide_task_div(task_element)
+}
+
+function checked_sub_div_animation(hanger_div){
+
+    let text_boxes = hanger_div.getElementsByClassName(TASK_TEXT_CLASSNAME)
+    for (let text_box of text_boxes){
+        text_strike_through(text_box)
     }
-    text_strike_through(task_pk)
-    this.className += FADE_OUT_CLASSNAME
 
+    let checkboxes = hanger_div.getElementsByClassName(TASK_CHECKBOX_CLASSNAME)
+    for (let checkbox of checkboxes){
+        check_checkbox(checkbox)
+    }
+}
 
-}
-function text_strike_through(pk){
-    //todo: finish
-}
-async function task_and_subtask_completed( pk, is_checked){
-    //await post_task_is_checked(is_checked, pk)// todo: finish
-}
-function hide_task_div(task_div){
-    //let pk= get_task_pk_from_element_id(task_div.id)
-    let checkbox = document.getElementById(task_div.id + TASK_IS_COMPLETED_CHECKBOX_ID)
-    checkbox.setAttribute("class", TASK_CHECKBOX_CLASSNAME + " true")
-
-    let text_box = document.getElementById(task_div.id + TASK_TEXT_ID)
+function text_strike_through(text_box){
     text_box.setAttribute("class", TASK_TEXT_CLASSNAME + TASK_TEXT_COMPLETE_CLASSNAME)
-
-    task_div.setAttribute("class", TASK_DIV_CLASSNAME + FADE_OUT_CLASSNAME )
-
 }
+function check_checkbox(checkbox){
+    checkbox.removeEventListener("mouseleave", mouse_leave_task_checkbox)
+    checkbox.setAttribute("class", TASK_CHECKBOX_CLASSNAME + " true")
+}
+
+
+
 
 function mouse_over_task_checkbox(){
     this.setAttribute("class", TASK_CHECKBOX_CLASSNAME + " true")

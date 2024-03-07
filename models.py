@@ -7,7 +7,7 @@ from django.utils import timezone
 
 
 class Task(models.Model):
-    description = models.CharField(max_length=250)
+    description = models.CharField(max_length=250, default="Title")
     date_created = models.DateTimeField(verbose_name="creation date", default=timezone.now)
     is_completed = models.BooleanField(default=False)
     is_hidden = models.BooleanField(default=False)
