@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
 from django.core import serializers
-import json
+
 # Create your views here.
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.views.decorators.cache import never_cache
-from .models import Task
+from .models import *
 HOLDER_FOR_TASK_ID = 0
 
 
@@ -75,15 +75,17 @@ def tasks(request):
 def get_new_task(request, header_id=0):
     if request.user.is_authenticated:
         try:
-            hold_to_task = Task.objects.get(id=header_id)
-            if hold_to_task.owner_id != request.user.id:
-                return JsonResponse({"error": "task does not exist"}, status=404)
+            if header_id != 0:
+                hold_to_task = Task.objects.get(id=header_id,is_hidden=True)
+                if hold_to_task.owner_id != request.user.id:
+
+                    return JsonResponse({"error": "task does not exist"}, status=404)
         except Task.DoesNotExist:
             return JsonResponse({"error": "task does not exist"}, status=404)
 
         new_task = Task.objects.create(holdToTask_id=header_id, owner_id=request.user.id)
-
-        return JsonResponse(new_task, content_type="application/json", safe=False)
+        new_task_json = serializers.serialize("json", [new_task,],)
+        return HttpResponse(new_task_json, content_type="application/json")
 
     return redirect("login:login")
 
