@@ -1,5 +1,5 @@
-const NULL_HOLD_TO_ID=0
-const JSON_URL = window.location.href + "tasks/"
+const NULL_HOLD_TO_ID=0;
+const JSON_URL = window.location.href + "tasks/" //wtf is that and why does conso
 const TASK_IS_COMPLETED_CHECKBOX_ID = "_checkbox"
 const TASK_CHECKBOX_CLASSNAME = "complete-checkbox";
 const TASK_DIV_ID = "task_"
@@ -19,16 +19,37 @@ async function getTasks( ){
             return  response.json();//JSON.parse(response)
         })
 }
+
+async function post_task_and_subtask_completed( pk, is_checked){
+    //await post_task_is_checked(is_checked, pk)
+    // todo: finish
+}
+
 async function getNewTask(hang_to_pk =NULL_HOLD_TO_ID){
-    return fetch(JSON_URL+"new/"+hang_to_pk+"/")
+    let url = JSON_URL+"new/"+hang_to_pk+"/"
+    let new_task= await fetch(url)
         .then(response=>{
+
             return response.json()
         })
 
+    if (new_task["error"] === undefined
+        && new_task[0]["pk"] !==undefined
+        && new_task[0]["fields"] !== undefined
+        && new_task[0]["fields"]["holdToTask"] !== undefined
+        ){
+        let task = new_task[0]
+        if ( task.fields.holdToTask == hang_to_pk){
+            return task
+        }
+        else{
+            display_error_to_user("wrong task created?")
+            return null
+        }
+    }
+    return null
 
-}
-async function post_task_and_subtask_completed( pk, is_checked){
-    //await post_task_is_checked(is_checked, pk)// todo: finish
+
 }
 
 async function display_tasks(tasks=null){
@@ -38,7 +59,7 @@ async function display_tasks(tasks=null){
              tasks = await getTasks();
 
         }catch (error){
-            display_error(error)
+            display_error_to_user(error)
         }
     }
 
@@ -47,28 +68,38 @@ async function display_tasks(tasks=null){
     })
 }
 
-function create_empty_task(id, hang_to = null){//TODO: a way to store "holdToTask_id"
+function set_environment(){
+    set_add_button()
+}
+function set_add_button(){
+    const add_new_task_button_id = "add-task"
+    let element = document.getElementById(add_new_task_button_id)
+    element.addEventListener("click", create_new_task )
+}
+function create_empty_task(pk, hang_to = null){//TODO: a way to store "holdToTask_id"
 
     const task_div = document.createElement("div")
     task_div.addEventListener("mouseover", mouse_on_task_div)
     task_div.addEventListener("mouseout", mouse_leave_task_div)
-    task_div.id = TASK_DIV_ID + id
+    task_div.id = TASK_DIV_ID + pk
     task_div.className=TASK_DIV_CLASSNAME
 
     let complete_checkbox=document.createElement("flex")// todo: it does not exist for some reason
-    complete_checkbox.setAttribute("id", TASK_DIV_ID+id+TASK_IS_COMPLETED_CHECKBOX_ID)
+    complete_checkbox.setAttribute("id", TASK_DIV_ID+pk+TASK_IS_COMPLETED_CHECKBOX_ID)
     complete_checkbox.setAttribute("class", TASK_CHECKBOX_CLASSNAME + " false")
     complete_checkbox.addEventListener("mouseenter", mouse_over_task_checkbox)
     complete_checkbox.addEventListener("mouseleave", mouse_leave_task_checkbox)
-    complete_checkbox.addEventListener("click", click_on_task_checkbox)
+    complete_checkbox.addEventListener("click",  click_on_task_checkbox)
 
     let task_text = document.createElement("flex")
     task_text.setAttribute("class",TASK_TEXT_CLASSNAME)
-    task_text.setAttribute("id",TASK_DIV_ID+id+TASK_TEXT_ID)
+    task_text.setAttribute("id",TASK_DIV_ID+pk+TASK_TEXT_ID)
     task_text.addEventListener("click", task_text_change_handler)
 
     let options_button = document.createElement("button")
     options_button.setAttribute("class", BUTTON_CLASSNAME)
+    options_button.setAttribute("id", TASK_DIV_ID + pk+"_button")
+    options_button.addEventListener("click", mouse_click_add_subtask, )
     //options_button.appendChild(document.createTextNode(""))
 
     let wrapper_checkbox = document.createElement("span")
@@ -88,7 +119,7 @@ function create_empty_task(id, hang_to = null){//TODO: a way to store "holdToTas
     task_div.appendChild(wrapper_after_checkbox)
 
     let task_wrapper = document.createElement("div")
-    task_wrapper.setAttribute("id", TASK_HANGER_ID + id)
+    task_wrapper.setAttribute("id", TASK_HANGER_ID + pk)
     task_wrapper.setAttribute("class", TASK_HANGER_CLASSNAME)
 
     task_wrapper.appendChild(task_div)
@@ -176,7 +207,7 @@ function data_to_task_json(div){
 
         return JSON.stringify(new_task_json)
     }catch (error){
-        display_error(error)
+        display_error_to_user(error)
         return JSON.stringify({"error":error})
     }
 
@@ -191,24 +222,26 @@ async function updateTask(json_task){
             },
             body: json_task,
         }).then((responseData)=> {console.log(responseData)})
-            .catch((error)=>{ display_error(error)})
+            .catch((error)=>{ display_error_to_user(error)})
 
     }catch (error){
-        display_error(error)
+        display_error_to_user(error)
     }
 
-    //if (response) //todo: finish post response handler
+    //if (response)
+    // todo: finish post response handler
 
 }
 
 
 async function click_on_task_checkbox(){
     let task_pk =  get_task_pk_from_element_id(this.id)
-    post_task_and_subtask_completed( task_pk, true)
+    //post_task_and_subtask_completed( task_pk, true)
 
     let task_hanger_div =  document.getElementById( TASK_HANGER_ID + task_pk )
     checked_sub_div_animation(task_hanger_div)
 
+    task_hanger_div.style.maxHeight = task_hanger_div.clientHeight
     task_hanger_div.setAttribute("class", FADE_OUT_CLASSNAME)
 
 }
@@ -219,23 +252,39 @@ function checked_sub_div_animation(hanger_div){
     for (let text_box of text_boxes){
         text_strike_through(text_box)
     }
-
     let checkboxes = hanger_div.getElementsByClassName(TASK_CHECKBOX_CLASSNAME)
     for (let checkbox of checkboxes){
         check_checkbox(checkbox)
     }
+
 }
 
 function text_strike_through(text_box){
     text_box.setAttribute("class", TASK_TEXT_CLASSNAME + TASK_TEXT_COMPLETE_CLASSNAME)
 }
 function check_checkbox(checkbox){
+
     checkbox.removeEventListener("mouseleave", mouse_leave_task_checkbox)
     checkbox.setAttribute("class", TASK_CHECKBOX_CLASSNAME + " true")
 }
 
+async function mouse_click_add_subtask(){
+    let pk = get_task_pk_from_element_id(this.id)
+    await create_new_task(pk)
+}
 
-
+async function create_new_task(hang_to_pk = NULL_HOLD_TO_ID){
+    try{
+        let task = await getNewTask(hang_to_pk)
+        if (task !== null){
+            render_task_as_div(task)
+        }else{
+            display_error_to_user("Cannot create a task task due to server response")
+        }
+    }catch (error){
+        log_error(error)
+    }
+}
 
 function mouse_over_task_checkbox(){
     this.setAttribute("class", TASK_CHECKBOX_CLASSNAME + " true")
@@ -256,7 +305,10 @@ function mouse_leave_task_div(){
     }
 }
 
-function display_error(error){
+function display_error_to_user(error){
+    console.log(error)
+}
+function log_error(error){
     console.log(error)
 }
 

@@ -76,16 +76,16 @@ def get_new_task(request, header_id=0):
     if request.user.is_authenticated:
         try:
             if header_id != 0:
-                hold_to_task = Task.objects.get(id=header_id,is_hidden=True)
+                hold_to_task = Task.objects.get(id=header_id)
                 if hold_to_task.owner_id != request.user.id:
+                    return JsonResponse({"error": "task does not exist, (owner)"}, status=404)
 
-                    return JsonResponse({"error": "task does not exist"}, status=404)
         except Task.DoesNotExist:
-            return JsonResponse({"error": "task does not exist"}, status=404)
+            return JsonResponse({"error": "task does not exist, at all"}, status=404)
 
         new_task = Task.objects.create(holdToTask_id=header_id, owner_id=request.user.id)
         new_task_json = serializers.serialize("json", [new_task,],)
-        return HttpResponse(new_task_json, content_type="application/json")
+        return HttpResponse(new_task_json, content_type="application/json")  # todo: problem with hang_to = 0
 
     return redirect("login:login")
 

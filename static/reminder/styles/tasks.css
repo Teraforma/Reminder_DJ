@@ -1,3 +1,7 @@
+/*
+todo: add task apear animation
+*/
+
 *{
     margin: 0;
     padding: 0;
@@ -162,16 +166,20 @@ button:hover{
     100% { width: 100%; }
 }
 @keyframes fade{
-        0%{ opacity: 1; height: 20%; margin-left: 5%;}
+        0%{ opacity: 1; ;height:40%; margin-left: 5%;}
         50% {margin-left: 0;}
         100%{opacity: 0;height: 0 !important; }
 }
+@keyframes expand_task {
+    0%{ height: 0}
+}
 
 .fade-out {
+    max-height: 40% ;
     opacity: 0;
     height: 0 ;
     overflow: hidden;
-    animation: fade 3s;
+    animation: fade 5s;
 }
 
 /*
