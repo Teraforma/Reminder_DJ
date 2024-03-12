@@ -20,14 +20,49 @@ async function getTasks( ){
         })
 }
 
-async function post_task_and_subtask_completed( pk, is_checked){
-    //await post_task_is_checked(is_checked, pk)
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+async function post_task_and_subtask_completed(pk){
+
+    if (isNaN(Number(pk))){
+        return false
+    }
+
+
+    let result = await fetch(JSON_URL, {
+        method:"POST",
+        body: JSON.stringify({
+            "is_completed": true,
+            "pk": pk
+        }),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            "X-CSRFToken": getCookie("csrftoken")
+        }
+    }).then(
+        (response)=> response.json()
+    ).then(
+        (data) => { return data }
+    )
     // todo: finish
 }
 
 async function getNewTask(hang_to_pk =NULL_HOLD_TO_ID){
     let url = JSON_URL+"new/"+hang_to_pk+"/"
-    let new_task= await fetch(url)
+    let new_task = await fetch(url)
         .then(response=>{
 
             return response.json()
@@ -72,9 +107,9 @@ function set_environment(){
     set_add_button()
 }
 function set_add_button(){
-    const add_new_task_button_id = "add-task"
+    const add_new_task_button_id = "add-task_0"
     let element = document.getElementById(add_new_task_button_id)
-    element.addEventListener("click", create_new_task )
+    element.addEventListener("click", mouse_click_add_subtask )
 }
 function create_empty_task(pk, hang_to = null){//TODO: a way to store "holdToTask_id"
 
@@ -188,7 +223,7 @@ function task_text_change_handler(){
         }else{
             div.textContent = input.value
         }
-        await updateTask( data_to_task_json(div));
+        await update_task_text( data_to_task_json(div));
         }
     )
 
@@ -213,7 +248,7 @@ function data_to_task_json(div){
 
 }
 
-async function updateTask(json_task){
+async function update_task_text(json_task){
     try{
         let response = await fetch(JSON_URL, {
             method:"POST",
@@ -235,8 +270,8 @@ async function updateTask(json_task){
 
 
 async function click_on_task_checkbox(){
+
     let task_pk =  get_task_pk_from_element_id(this.id)
-    //post_task_and_subtask_completed( task_pk, true)
 
     let task_hanger_div =  document.getElementById( TASK_HANGER_ID + task_pk )
     checked_sub_div_animation(task_hanger_div)
@@ -244,6 +279,7 @@ async function click_on_task_checkbox(){
     task_hanger_div.style.maxHeight = task_hanger_div.clientHeight
     task_hanger_div.setAttribute("class", FADE_OUT_CLASSNAME)
 
+    post_task_and_subtask_completed(task_pk)
 }
 
 function checked_sub_div_animation(hanger_div){
@@ -269,11 +305,12 @@ function check_checkbox(checkbox){
 }
 
 async function mouse_click_add_subtask(){
-    let pk = get_task_pk_from_element_id(this.id)
-    await create_new_task(pk)
+    let hold_to_pk = get_task_pk_from_element_id(this.id)
+    await create_new_task(hold_to_pk)
 }
 
 async function create_new_task(hang_to_pk = NULL_HOLD_TO_ID){
+
     try{
         let task = await getNewTask(hang_to_pk)
         if (task !== null){

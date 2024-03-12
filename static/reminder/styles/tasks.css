@@ -88,7 +88,7 @@ todo: add task apear animation
     padding-top: 2%;
     padding-bottom: 2%;
     margin-bottom: 10px;
-    animation: task_complete_set_true  ;
+    animation:  expand-task 1s ;
 }
 
 .task-container:after{
@@ -137,7 +137,7 @@ button:hover{
     background-color: lightgrey;
 
 }
-#add-task{
+#add-task_0{
     background: linear-gradient(170deg, coral, #b9c7ff);
     border-radius: 50px;
     text-align: center;
@@ -166,20 +166,21 @@ button:hover{
     100% { width: 100%; }
 }
 @keyframes fade{
-        0%{ opacity: 1; ;height:40%; margin-left: 5%;}
+        0%{ opacity: 1; ;height:100%; margin-left: 5%;}
         50% {margin-left: 0;}
         100%{opacity: 0;height: 0 !important; }
 }
-@keyframes expand_task {
-    0%{ height: 0}
+@keyframes expand-task {
+    0%{ max-height: 0}
+    100% { max-height: 10%}
 }
 
 .fade-out {
-    max-height: 40% ;
+
     opacity: 0;
     height: 0 ;
     overflow: hidden;
-    animation: fade 5s;
+    animation: fade 3s;
 }
 
 /*
