@@ -18,6 +18,13 @@ class Task(models.Model):
 
         return self.description
 
+    def save(self, *args, **kwargs):
+        if self.is_completed:
+            for task in self.task_set.all():
+                task.is_completed = True
+                task.save()
+        super(Task, self).save(*args, **kwargs)
+
 
 class Theme(models.Model):
     name = models.CharField(max_length=40)

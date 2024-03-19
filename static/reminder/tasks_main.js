@@ -60,7 +60,7 @@ async function post_task_and_subtask_completed(pk){
     // todo: finish
 }
 
-async function getNewTask(hang_to_pk =NULL_HOLD_TO_ID){
+async function fetchGetNewTask(hang_to_pk =NULL_HOLD_TO_ID){
     let url = JSON_URL+"new/"+hang_to_pk+"/"
     let new_task = await fetch(url)
         .then(response=>{
@@ -109,8 +109,32 @@ function set_environment(){
 function set_add_button(){
     const add_new_task_button_id = "add-task_0"
     let element = document.getElementById(add_new_task_button_id)
+    const main_add_button_classname = "main-add-task-button"
+
     element.addEventListener("click", mouse_click_add_subtask )
+    element.addEventListener("click",  function (){
+        const keyframe =
+        [{backgroundPosition: "0 0", opacity: 1},
+            {opacity: 0.85},
+            {backgroundPosition: "50% 50%", opacity: 1},
+            { backgroundPosition: "0 0"}
+        ];
+        const animaOptions = {
+            duration: 750,
+            easing: "ease",
+            fill: "forwards",//todo: check
+        }
+        this.animate(keyframe, animaOptions)
+        // if (this.className === main_add_button_classname){
+        //     this.setAttribute("class", main_add_button_classname + " shine")
+        //
+        // }else{
+        //     this.setAttribute("class", main_add_button_classname )
+        // }
+    }
+    )
 }
+
 function create_empty_task(pk, hang_to = null){//TODO: a way to store "holdToTask_id"
 
     const task_div = document.createElement("div")
@@ -181,7 +205,7 @@ function render_task_as_div(task){
     fill_task_div(task.pk,task.fields)
 
     hang_to.appendChild(task_div)
-
+    return task_div
 }
 function fill_task_div(id, task_fields){
     let task_div=document.getElementById(TASK_DIV_ID+id)
@@ -206,15 +230,16 @@ function task_text_change_handler(){
     input.value=currentText
     input.setAttribute("placeholder", TASK_PLACEHOLDER_TEXT)
 
-    this.innerHTML=" ";
+    this.innerHTML="";
     this.appendChild(input);
     input.focus();
 
-    input.addEventListener("blur", async()=>{
+    input.addEventListener("blur", async function() {
         let is_empty = true
-        for (let char in input.value){
+        for (let char of this.value){
             if (char !== " "){
                 is_empty=false
+                break
             }
         }
 
@@ -223,7 +248,9 @@ function task_text_change_handler(){
         }else{
             div.textContent = input.value
         }
-        await update_task_text( data_to_task_json(div));
+        if (currentText !== input.value){
+            await update_task_text( data_to_task_json(div));
+            }
         }
     )
 
@@ -231,11 +258,11 @@ function task_text_change_handler(){
 
 function data_to_task_json(div){
     try{
-        let task_div_id = ((div.id).slice("_"))[0] + "_" + (div.id).slice("_")[1]
-        let task_div = document.getElementById(task_div_id)
+        let pk =  get_task_pk_from_element_id(div.id)
+        let task_div = document.getElementById(TASK_DIV_ID+pk)
         let new_task_json= {
-            "id":(task_div.id).slice("_")[1],
-            "description":task_div.getElementsByClassName("task text")[0].textContent,
+            "pk":pk,
+            "description":document.getElementById(task_div.id + TASK_TEXT_ID).textContent,
             "is_completed":document.getElementById(task_div.id+TASK_IS_COMPLETED_CHECKBOX_ID).className === TASK_CHECKBOX_CLASSNAME+" true"
             //"holdToTask":,
         }
@@ -254,8 +281,9 @@ async function update_task_text(json_task){
             method:"POST",
             headers: {
                 'Content-Type': 'application/json',
+                "X-CSRFToken": getCookie("csrftoken"),
             },
-            body: json_task,
+            body: json_task
         }).then((responseData)=> {console.log(responseData)})
             .catch((error)=>{ display_error_to_user(error)})
 
@@ -306,21 +334,43 @@ function check_checkbox(checkbox){
 
 async function mouse_click_add_subtask(){
     let hold_to_pk = get_task_pk_from_element_id(this.id)
-    await create_new_task(hold_to_pk)
+    let pk = await create_new_task(hold_to_pk)
+    if (pk !== null){
+        document.getElementById(TASK_DIV_ID+pk+TASK_TEXT_ID).click()
+
+        //todo: more attantion to created task so basicly run an animation
+    }
 }
+
 
 async function create_new_task(hang_to_pk = NULL_HOLD_TO_ID){
 
     try{
-        let task = await getNewTask(hang_to_pk)
+        let task = await fetchGetNewTask(hang_to_pk)
         if (task !== null){
-            render_task_as_div(task)
+             let task_div = render_task_as_div(task)
+             const keyframe =
+            [{backgroundPosition: "0 0", opacity: 0.4, backgroundColor: "coral",},
+            {opacity: 0.5},
+            {backgroundPosition: "50% 50%",backgroundColor: "inherit", opacity: 0.8},
+            ];
+            const animaOptions = {
+                duration: 1500,
+                easing: "linear",
+                fill: "forwards",//todo: check
+            }
+            document.getElementById(TASK_DIV_ID+task["pk"]).animate(keyframe,animaOptions)
+
         }else{
             display_error_to_user("Cannot create a task task due to server response")
+        }
+        if (task !== null){
+            return task["pk"]
         }
     }catch (error){
         log_error(error)
     }
+    return null
 }
 
 function mouse_over_task_checkbox(){
@@ -330,11 +380,17 @@ function mouse_leave_task_checkbox(){
     this.setAttribute("class", TASK_CHECKBOX_CLASSNAME + " false")
 }
 function mouse_on_task_div(){
+
     let buttons = this.getElementsByClassName(BUTTON_CLASSNAME)
     for (let button of buttons){
         button.style.visibility = "visible"
     }
 }
+
+function enter_task_div(task_div){
+    //todo: finish
+}
+
 function mouse_leave_task_div(){
     let buttons = this.getElementsByClassName(BUTTON_CLASSNAME)
     for (let button of buttons){
@@ -350,5 +406,8 @@ function log_error(error){
 }
 
 function get_task_pk_from_element_id(id){
+    if (id instanceof HTMLElement){
+        throw TypeError("it have to be id of element NOT AN ELEMENT")
+    }
     return (id.split("_"))[1]
 }

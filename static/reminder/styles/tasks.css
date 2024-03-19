@@ -1,5 +1,5 @@
 /*
-todo: add task apear animation
+todo: make appear animation better
 */
 
 *{
@@ -48,7 +48,7 @@ todo: add task apear animation
     width: 100%;
     height: 1px;
     background: black;
-    animation: strike-through-text 1s;
+    animation: strike-through-text 0.5s;
 
 }
 
@@ -88,7 +88,7 @@ todo: add task apear animation
     padding-top: 2%;
     padding-bottom: 2%;
     margin-bottom: 10px;
-    animation:  expand-task 1s ;
+    animation:  appear-task 1s ;
 }
 
 .task-container:after{
@@ -137,8 +137,10 @@ button:hover{
     background-color: lightgrey;
 
 }
-#add-task_0{
-    background: linear-gradient(170deg, coral, #b9c7ff);
+.main-add-task-button{
+
+    background: linear-gradient(170deg, coral, #5e84ff);
+    background-size: 200% 200% ;
     border-radius: 50px;
     text-align: center;
     padding: 10px 10px 10px;
@@ -147,6 +149,9 @@ button:hover{
     margin-left: 5%;
     margin-bottom: 2.5%;
 }
+
+
+
 .add-task-header-text{
     justify-content: center;
     text-align: center;
@@ -155,7 +160,15 @@ button:hover{
     color: rgba(140, 255, 255, 0.78);
     align-items: center;
 }
-
+.add-task-header-text{
+    user-select: none;
+}
+@keyframes shine {
+        0%{background-position: 0 0; opacity: 1}
+        25%{opacity: 0.7}
+        50%{background-position: 50% 50%; opacity: 1}
+        100%{background-position: 0 0}
+    }
 
 @keyframes task_complete_set_true {
     10% { .task-container }
@@ -167,12 +180,16 @@ button:hover{
 }
 @keyframes fade{
         0%{ opacity: 1; ;height:100%; margin-left: 5%;}
-        50% {margin-left: 0;}
-        100%{opacity: 0;height: 0 !important; }
+        50% {}
+        100%{opacity: 0;height: 0 !important; margin-left: 0; }
 }
-@keyframes expand-task {
-    0%{ max-height: 0}
-    100% { max-height: 10%}
+@keyframes appear-task {
+    0%{ max-height: min-content; background-color: white;}
+    50%{background-color: black}
+    100% { max-height: fit-content; background-color: white}
+}
+@keyframes appear-task {
+
 }
 
 .fade-out {
@@ -180,17 +197,9 @@ button:hover{
     opacity: 0;
     height: 0 ;
     overflow: hidden;
-    animation: fade 3s;
+    animation: fade 0.5s;
 }
 
-/*
 
-
-.fade-out *{
-    display: none;
-    height: 0;
-    animation: fade 1s;
-}
-*/
 
 
